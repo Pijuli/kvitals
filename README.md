@@ -26,13 +26,13 @@ CPU: 26%  |  RAM: 8.8/39.0G  |  TEMP: 96°C  |  🔋BAT: 78%  |  NET: ↓82.2K �
 ### Quick Install (curl)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/yassine20011/kvitals/main/install-remote.sh | bash
+curl -fsSL https://raw.githubusercontent.com/yassine20011/kvitals/master/install-remote.sh | bash
 ```
 
 ### Quick Install (wget)
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/yassine20011/kvitals/main/install-remote.sh | bash
+wget -qO- https://raw.githubusercontent.com/yassine20011/kvitals/master/install-remote.sh | bash
 ```
 
 ### Manual Install
