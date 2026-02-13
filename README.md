@@ -88,16 +88,6 @@ rm -rf ~/.local/share/plasma/plasmoids/org.kde.plasma.kvitals
 
 Then restart Plasma: `plasmashell --replace &`
 
-## Packaging for KDE Store
-
-To create a `.plasmoid` file for upload to the [KDE Store](https://store.kde.org/):
-
-```bash
-bash package.sh
-```
-
-This will create `org.kde.plasma.kvitals-v1.1.0.plasmoid`. Upload this file to the **Plasma 6 Extensions** category.
-
 ## Project Structure
 
 ```
