@@ -16,6 +16,7 @@ PlasmoidItem {
     property bool showTemp: Plasmoid.configuration.showTemp
     property bool showBattery: Plasmoid.configuration.showBattery
     property bool showNetwork: Plasmoid.configuration.showNetwork
+    property string networkInterface: Plasmoid.configuration.networkInterface
 
     property string cpuText: "..."
     property string ramText: "..."
@@ -29,7 +30,7 @@ PlasmoidItem {
 
         property string scriptPath: Qt.resolvedUrl("../scripts/sys-stats.sh").toString().replace("file://", "")
 
-        connectedSources: ["bash " + scriptPath]
+        connectedSources: ["bash " + scriptPath + " " + root.networkInterface]
 
         interval: Plasmoid.configuration.updateInterval
 

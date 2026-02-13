@@ -5,7 +5,33 @@ set -euo pipefail
 
 readonly PREV_CPU_FILE="/tmp/kde-sys-state-cpu-prev"
 readonly PREV_NET_FILE="/tmp/kde-sys-state-net-prev"
-readonly NET_IFACE="${KV_NET_IFACE:-wlo1}"
+
+detect_net_iface() {
+    # 1. Use script argument if provided and not "auto"
+    if [[ -n "${1:-}" && "$1" != "auto" ]]; then
+        echo "$1"
+        return
+    fi
+
+    # 2. Auto-detect from default route
+    local iface
+    iface=$(ip route 2>/dev/null | awk '/^default/ {print $5; exit}')
+    if [[ -n "$iface" ]]; then
+        echo "$iface"
+        return
+    fi
+
+    # 3. Fallback: first non-lo interface
+    iface=$(ls /sys/class/net/ 2>/dev/null | grep -v '^lo$' | head -n1)
+    if [[ -n "$iface" ]]; then
+        echo "$iface"
+        return
+    fi
+
+    echo "lo"
+}
+
+readonly NET_IFACE=$(detect_net_iface "${1:-}")
 
 # CPU Usage (delta-based from /proc/stat)
 

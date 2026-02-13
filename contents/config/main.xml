@@ -19,6 +19,9 @@
         <entry name="showNetwork" type="Bool">
             <default>true</default>
         </entry>
+        <entry name="networkInterface" type="String">
+            <default>auto</default>
+        </entry>
         <entry name="updateInterval" type="Int">
             <default>2000</default>
         </entry>
