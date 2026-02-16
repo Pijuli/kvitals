@@ -65,23 +65,48 @@ get_ram() {
     awk '/^Mem:/ {printf "%.1f %.1f", $3/1073741824, $2/1073741824}' <(free -b)
 }
 
-# CPU Temperature (4-tier fallback)
+# CPU Temperature (4-tier fallback, Intel + AMD)
 
 get_temp() {
     local zone type_file raw name hwmon
 
-    # Try 1: thermal_zone sysfs (CPU-matched)
+    # Try 1: thermal_zone sysfs (CPU-matched — Intel & AMD labels)
     for zone in /sys/class/thermal/thermal_zone*/temp; do
         [[ -f "$zone" ]] || continue
         type_file="${zone%temp}type"
-        if [[ -f "$type_file" ]] && grep -qi "x86_pkg_temp\|coretemp\|cpu" "$type_file" 2>/dev/null; then
+        if [[ -f "$type_file" ]] && grep -qi "x86_pkg_temp\|coretemp\|k10temp\|zenpower\|cpu" "$type_file" 2>/dev/null; then
             raw=$(<"$zone")
             echo $((raw / 1000))
             return
         fi
     done
 
-    # Try 2: first available thermal zone
+    # Try 2: hwmon (coretemp / k10temp / zenpower / zenergy / amdgpu)
+    for hwmon in /sys/class/hwmon/hwmon*/; do
+        [[ -f "${hwmon}name" ]] || continue
+        name=$(<"${hwmon}name")
+        case "$name" in
+            coretemp|k10temp|zenpower|zenergy|amdgpu)
+                if [[ -f "${hwmon}temp1_input" ]]; then
+                    raw=$(<"${hwmon}temp1_input")
+                    echo $((raw / 1000))
+                    return
+                fi
+                ;;
+        esac
+    done
+
+    # Try 3: lm-sensors command (Intel: Package id / AMD: Tctl, Tdie, Tccd)
+    if command -v sensors &>/dev/null; then
+        local temp
+        temp=$(sensors 2>/dev/null | awk '/^(Package id 0|Tctl|Tdie|Tccd1|Core 0):/ {gsub(/[^0-9.]/, "", $NF); printf "%.0f", $NF; exit}')
+        if [[ -n "$temp" ]]; then
+            echo "$temp"
+            return
+        fi
+    fi
+
+    # Try 4: first available thermal zone (generic fallback)
     for zone in /sys/class/thermal/thermal_zone*/temp; do
         if [[ -f "$zone" ]]; then
             raw=$(<"$zone")
@@ -89,29 +114,6 @@ get_temp() {
             return
         fi
     done
-
-    # Try 3: hwmon (coretemp / k10temp / zenpower)
-    for hwmon in /sys/class/hwmon/hwmon*/; do
-        [[ -f "${hwmon}name" ]] || continue
-        name=$(<"${hwmon}name")
-        if [[ "$name" == "coretemp" || "$name" == "k10temp" || "$name" == "zenpower" ]]; then
-            if [[ -f "${hwmon}temp1_input" ]]; then
-                raw=$(<"${hwmon}temp1_input")
-                echo $((raw / 1000))
-                return
-            fi
-        fi
-    done
-
-    # Try 4: lm-sensors command
-    if command -v sensors &>/dev/null; then
-        local temp
-        temp=$(sensors 2>/dev/null | awk '/^(Package id 0|Tctl|Tdie|Core 0):/ {gsub(/[^0-9.]/, "", $NF); printf "%.0f", $NF; exit}')
-        if [[ -n "$temp" ]]; then
-            echo "$temp"
-            return
-        fi
-    fi
 
     echo "N/A"
 }
