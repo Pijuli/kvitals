@@ -154,7 +154,6 @@ get_power() {
     for bat_dir in "$power_supply_dir"/*; do
         [[ -d "$bat_dir" ]] || continue
         
-        local bat_name=$(basename "$bat_dir")
         local type_file="$bat_dir/type"
         
         # Check if it's a battery device
