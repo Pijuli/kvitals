@@ -13,6 +13,9 @@
         <entry name="showTemp" type="Bool">
             <default>true</default>
         </entry>
+        <entry name="showGpu" type="Bool">
+            <default>true</default>
+        </entry>
         <entry name="showBattery" type="Bool">
             <default>true</default>
         </entry>
@@ -39,6 +42,9 @@
         </entry>
         <entry name="tempIcon" type="String">
             <default>temperature-normal</default>
+        </entry>
+        <entry name="gpuIcon" type="String">
+            <default>video-card</default>
         </entry>
         <entry name="batteryIcon" type="String">
             <default>battery-good</default>

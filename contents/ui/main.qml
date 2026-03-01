@@ -14,6 +14,7 @@ PlasmoidItem {
     property bool showCpu: Plasmoid.configuration.showCpu
     property bool showRam: Plasmoid.configuration.showRam
     property bool showTemp: Plasmoid.configuration.showTemp
+    property bool showGpu: Plasmoid.configuration.showGpu
     property bool showBattery: Plasmoid.configuration.showBattery
     property bool showPower: Plasmoid.configuration.showPower
     property bool showNetwork: Plasmoid.configuration.showNetwork
@@ -23,6 +24,7 @@ PlasmoidItem {
     property string cpuIcon: Plasmoid.configuration.cpuIcon
     property string ramIcon: Plasmoid.configuration.ramIcon
     property string tempIcon: Plasmoid.configuration.tempIcon
+    property string gpuIcon: Plasmoid.configuration.gpuIcon
     property string batteryIcon: Plasmoid.configuration.batteryIcon
     property string powerIcon: Plasmoid.configuration.powerIcon
     property string networkIcon: Plasmoid.configuration.networkIcon
@@ -64,6 +66,138 @@ PlasmoidItem {
     Sensors.Sensor {
         id: tempSensor
         sensorId: "cpu/all/averageTemperature"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuUsageAllSensor
+        sensorId: "gpu/all/usage"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuUsage0Sensor
+        sensorId: "gpu/gpu0/usage"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuUsage1Sensor
+        sensorId: "gpu/gpu1/usage"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuUsage2Sensor
+        sensorId: "gpu/gpu2/usage"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuUsage3Sensor
+        sensorId: "gpu/gpu3/usage"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramUsedAllSensor
+        sensorId: "gpu/all/usedVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramTotalAllSensor
+        sensorId: "gpu/all/totalVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramUsedLegacySensor
+        sensorId: "gpu/all/memory/used"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramTotalLegacySensor
+        sensorId: "gpu/all/memory/total"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramUsed0Sensor
+        sensorId: "gpu/gpu0/usedVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramTotal0Sensor
+        sensorId: "gpu/gpu0/totalVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramUsed1Sensor
+        sensorId: "gpu/gpu1/usedVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramTotal1Sensor
+        sensorId: "gpu/gpu1/totalVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramUsed2Sensor
+        sensorId: "gpu/gpu2/usedVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramTotal2Sensor
+        sensorId: "gpu/gpu2/totalVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramUsed3Sensor
+        sensorId: "gpu/gpu3/usedVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuVramTotal3Sensor
+        sensorId: "gpu/gpu3/totalVram"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuTempAllSensor
+        sensorId: "gpu/all/temperature"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuTemp0Sensor
+        sensorId: "gpu/gpu0/temperature"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuTemp1Sensor
+        sensorId: "gpu/gpu1/temperature"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuTemp2Sensor
+        sensorId: "gpu/gpu2/temperature"
+        updateRateLimit: root.updateInterval
+    }
+
+    Sensors.Sensor {
+        id: gpuTemp3Sensor
+        sensorId: "gpu/gpu3/temperature"
         updateRateLimit: root.updateInterval
     }
 
@@ -126,6 +260,53 @@ PlasmoidItem {
         return Math.max(0, kbps).toFixed(1) + "K";
     }
 
+    function sensorValueOrNaN(sensor) {
+        if (!sensor || sensor.status !== Sensors.Sensor.Ready)
+            return NaN;
+        if (typeof sensor.value !== "number" || isNaN(sensor.value))
+            return NaN;
+        return sensor.value;
+    }
+
+    function firstReadyNumber(sensors, requirePositive) {
+        for (var i = 0; i < sensors.length; i++) {
+            var value = sensorValueOrNaN(sensors[i]);
+            if (isNaN(value))
+                continue;
+            if (requirePositive && value <= 0)
+                continue;
+            return value;
+        }
+        return NaN;
+    }
+
+    function maxReadyNumber(sensors, requirePositive) {
+        var maxValue = NaN;
+        for (var i = 0; i < sensors.length; i++) {
+            var value = sensorValueOrNaN(sensors[i]);
+            if (isNaN(value))
+                continue;
+            if (requirePositive && value <= 0)
+                continue;
+            if (isNaN(maxValue) || value > maxValue)
+                maxValue = value;
+        }
+        return maxValue;
+    }
+
+    function firstReadyVramPair(pairs) {
+        for (var i = 0; i < pairs.length; i++) {
+            var used = sensorValueOrNaN(pairs[i].used);
+            var total = sensorValueOrNaN(pairs[i].total);
+            if (isNaN(used) || isNaN(total))
+                continue;
+            if (total <= 0 || used < 0)
+                continue;
+            return { used: used, total: total };
+        }
+        return null;
+    }
+
     // --- Derived display values ---
 
     property string cpuValue: {
@@ -143,6 +324,66 @@ PlasmoidItem {
         if (tempSensor.status !== Sensors.Sensor.Ready) return "--";
         return Math.round(tempSensor.value) + "°C";
     }
+
+    property real gpuUsageNumber: {
+        var aggregateUsage = firstReadyNumber([gpuUsageAllSensor], false);
+        if (!isNaN(aggregateUsage))
+            return aggregateUsage;
+        return maxReadyNumber([gpuUsage0Sensor, gpuUsage1Sensor, gpuUsage2Sensor, gpuUsage3Sensor], false);
+    }
+
+    property var gpuVramPair: {
+        return firstReadyVramPair([
+            { used: gpuVramUsedAllSensor, total: gpuVramTotalAllSensor },
+            { used: gpuVramUsedLegacySensor, total: gpuVramTotalLegacySensor },
+            { used: gpuVramUsed0Sensor, total: gpuVramTotal0Sensor },
+            { used: gpuVramUsed1Sensor, total: gpuVramTotal1Sensor },
+            { used: gpuVramUsed2Sensor, total: gpuVramTotal2Sensor },
+            { used: gpuVramUsed3Sensor, total: gpuVramTotal3Sensor }
+        ]);
+    }
+
+    property real gpuTempNumber: {
+        var aggregateTemp = firstReadyNumber([gpuTempAllSensor], true);
+        if (!isNaN(aggregateTemp))
+            return aggregateTemp;
+        return maxReadyNumber([gpuTemp0Sensor, gpuTemp1Sensor, gpuTemp2Sensor, gpuTemp3Sensor], true);
+    }
+
+    property string gpuValue: {
+        if (isNaN(gpuUsageNumber))
+            return "";
+        return Math.round(gpuUsageNumber) + "%";
+    }
+
+    property string gpuRamValue: {
+        if (!gpuVramPair)
+            return "";
+        return formatBytes(gpuVramPair.used) + "/" + formatBytes(gpuVramPair.total) + "G";
+    }
+
+    property string gpuTempValue: {
+        if (isNaN(gpuTempNumber))
+            return "";
+        return Math.round(gpuTempNumber) + "°C";
+    }
+
+    property string gpuDisplayValue: {
+        var parts = [];
+        if (gpuValue)
+            parts.push(gpuValue);
+        if (gpuRamValue)
+            parts.push(gpuRamValue);
+        if (gpuTempValue)
+            parts.push(gpuTempValue);
+        return parts.join(" ");
+    }
+
+    property bool hasGpuData: gpuDisplayValue.length > 0
+
+    property bool hasGpuUsageData: gpuValue.length > 0
+    property bool hasGpuVramData: gpuRamValue.length > 0
+    property bool hasGpuTempData: gpuTempValue.length > 0
 
     property string batValue: {
         if (activeBatChargeSensor.status !== Sensors.Sensor.Ready) return "";
@@ -184,6 +425,8 @@ PlasmoidItem {
                 items.push({ icon: root.ramIcon, label: "RAM:", value: root.ramValue });
             if (root.showTemp && root.tempValue && root.tempValue !== "--")
                 items.push({ icon: root.tempIcon, label: "TEMP:", value: root.tempValue });
+            if (root.showGpu && root.hasGpuData)
+                items.push({ icon: root.gpuIcon, label: "GPU:", value: root.gpuDisplayValue });
             if (root.showBattery && root.batValue)
                 items.push({ icon: root.batteryIcon, label: "BAT:", value: root.batValue });
             if (root.showPower && root.powerValue)
@@ -268,6 +511,11 @@ PlasmoidItem {
                 if (root.showCpu) items.push({ label: "CPU Usage", value: root.cpuValue });
                 if (root.showRam) items.push({ label: "Memory", value: root.ramValue });
                 if (root.showTemp && root.tempValue !== "--") items.push({ label: "CPU Temp", value: root.tempValue });
+                if (root.showGpu) {
+                    if (root.hasGpuUsageData) items.push({ label: "GPU Usage", value: root.gpuValue });
+                    if (root.hasGpuVramData) items.push({ label: "GPU VRAM", value: root.gpuRamValue });
+                    if (root.hasGpuTempData) items.push({ label: "GPU Temp", value: root.gpuTempValue });
+                }
                 if (root.showBattery && root.batValue) items.push({ label: "Battery", value: root.batValue });
                 if (root.showPower && root.powerValue) items.push({ label: "Power", value: root.powerValue });
                 if (root.showNetwork) {
@@ -302,6 +550,11 @@ PlasmoidItem {
         if (root.showCpu && root.cpuValue) parts.push("CPU: " + root.cpuValue);
         if (root.showRam && root.ramValue) parts.push("RAM: " + root.ramValue);
         if (root.showTemp && root.tempValue && root.tempValue !== "--") parts.push("TEMP: " + root.tempValue);
+        if (root.showGpu && root.hasGpuData) {
+            if (root.hasGpuUsageData) parts.push("GPU: " + root.gpuValue);
+            if (root.hasGpuVramData) parts.push("VRAM: " + root.gpuRamValue);
+            if (root.hasGpuTempData) parts.push("GPU TEMP: " + root.gpuTempValue);
+        }
         if (root.showBattery && root.batValue) parts.push("BAT: " + root.batValue);
         if (root.showPower && root.powerValue) parts.push("PWR: " + root.powerValue);
         if (root.showNetwork) parts.push("NET: ↓" + root.netDownValue + " ↑" + root.netUpValue);

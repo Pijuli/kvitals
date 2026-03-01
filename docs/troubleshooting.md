@@ -53,6 +53,28 @@ sensors 2>/dev/null | head -20
 !!! tip
     If you use multiple connections (WiFi + Ethernet), set the interface manually to the one you want to monitor.
 
+## GPU Shows Only Usage (or Missing VRAM/Temp)
+
+**Cause:** GPU sensor availability depends on your driver/backend. Some systems expose only usage, while VRAM or temperature sensors are missing or report no data.
+
+**Behavior in KVitals:** The widget now shows only the GPU fields that are available on your system (no placeholder `...` / `--` for unsupported GPU sub-metrics).
+
+**Fix/Debug:** List GPU sensor IDs reported by Plasma KSystemStats:
+
+```bash
+qdbus --literal org.kde.ksystemstats1 /org/kde/ksystemstats1 org.kde.ksystemstats1.allSensors \
+  | rg -o '"gpu/[^"]+"' | tr -d '"' | sort -u
+```
+
+Then test a specific sensor value:
+
+```bash
+qdbus --literal org.kde.ksystemstats1 /org/kde/ksystemstats1 org.kde.ksystemstats1.sensorData gpu/all/usage
+```
+
+!!! tip
+    On multi-GPU systems, per-GPU sensors such as `gpu/gpu1/*` may exist even when aggregate sensors are partial.
+
 ## Widget Shows "KVitals" or "..."
 
 **Cause:** The KSysGuard daemon hasn't returned sensor data yet.

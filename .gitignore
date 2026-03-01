@@ -10,3 +10,4 @@ env/
 
 *.d2
 site/
+.wrangler/

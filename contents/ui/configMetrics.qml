@@ -11,6 +11,7 @@ KCM.SimpleKCM {
     property alias cfg_showCpu: showCpuCheck.checked
     property alias cfg_showRam: showRamCheck.checked
     property alias cfg_showTemp: showTempCheck.checked
+    property alias cfg_showGpu: showGpuCheck.checked
     property alias cfg_showBattery: showBatteryCheck.checked
     property alias cfg_showPower: showPowerCheck.checked
     property alias cfg_showNetwork: showNetworkCheck.checked
@@ -51,6 +52,11 @@ KCM.SimpleKCM {
         CheckBox {
             id: showTempCheck
             text: i18n("Show CPU temperature")
+        }
+
+        CheckBox {
+            id: showGpuCheck
+            text: i18n("Show GPU metrics")
         }
 
         CheckBox {

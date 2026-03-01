@@ -11,6 +11,7 @@ KCM.SimpleKCM {
     property string cfg_cpuIcon: "cpu"
     property string cfg_ramIcon: "memory"
     property string cfg_tempIcon: "temperature-normal"
+    property string cfg_gpuIcon: "video-card"
     property string cfg_batteryIcon: "battery-good"
     property string cfg_powerIcon: "battery-charging-60"
     property string cfg_networkIcon: "network-wireless"
@@ -26,6 +27,10 @@ KCM.SimpleKCM {
     KIconThemes.IconDialog {
         id: tempIconDialog
         onIconNameChanged: if (iconName) cfg_tempIcon = iconName
+    }
+    KIconThemes.IconDialog {
+        id: gpuIconDialog
+        onIconNameChanged: if (iconName) cfg_gpuIcon = iconName
     }
     KIconThemes.IconDialog {
         id: batteryIconDialog
@@ -61,6 +66,12 @@ KCM.SimpleKCM {
         }
 
         RowLayout {
+            Kirigami.FormData.label: i18n("GPU:")
+            Kirigami.Icon { source: cfg_gpuIcon; isMask: true; Layout.preferredWidth: 22; Layout.preferredHeight: 22 }
+            Button { text: i18n("Change..."); onClicked: gpuIconDialog.open(); icon.name: "document-edit" }
+        }
+
+        RowLayout {
             Kirigami.FormData.label: i18n("Battery:")
             Kirigami.Icon { source: cfg_batteryIcon; isMask: true; Layout.preferredWidth: 22; Layout.preferredHeight: 22 }
             Button { text: i18n("Change..."); onClicked: batteryIconDialog.open(); icon.name: "document-edit" }
@@ -86,6 +97,7 @@ KCM.SimpleKCM {
                 cfg_cpuIcon = "cpu";
                 cfg_ramIcon = "memory";
                 cfg_tempIcon = "temperature-normal";
+                cfg_gpuIcon = "video-card";
                 cfg_batteryIcon = "battery-good";
                 cfg_powerIcon = "battery-charging-60";
                 cfg_networkIcon = "network-wireless";
