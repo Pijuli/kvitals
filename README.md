@@ -8,13 +8,13 @@ CPU: 26%  |  RAM: 8.8/39.0G  |  TEMP: 96°C  |  🔋BAT: 78%  |  PWR: +20W  |  N
 
 ## Screenshots
 
-<center>
-<img src="screenshots/demo.gif" alt="Demo">
-</center>
-
-![General Settings](screenshots/general_settings.png)
-![Metrics Settings](screenshots/metrics_settings.png)
-![Icons Settings](screenshots/icons_settings.png)
+<div align="center">
+  <img src="screenshots/demo.gif" alt="Demo">
+  <br><br>
+  <img src="screenshots/general_settings.png" alt="General Settings">
+  <img src="screenshots/metrics_settings.png" alt="Metrics Settings">
+  <img src="screenshots/icons_settings.png" alt="Icons Settings">
+</div>
 
 ## Features
 
