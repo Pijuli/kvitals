@@ -417,6 +417,10 @@ PlasmoidItem {
         id: compactRow
         spacing: Kirigami.Units.smallSpacing
 
+        TapHandler {
+            onTapped: root.expanded = !root.expanded
+        }
+
         property var metricsModel: {
             var items = [];
             if (root.showCpu && root.cpuValue)
@@ -484,11 +488,6 @@ PlasmoidItem {
                     Layout.alignment: Qt.AlignVCenter
                 }
             }
-        }
-        
-        MouseArea {
-            anchors.fill: parent
-            onClicked: root.expanded = !root.expanded
         }
     }
 
