@@ -2,6 +2,13 @@
 
 All notable changes to KVitals will be documented in this file.
 
+## [2.2.1] - 2026-03-07
+
+### Fixed
+- **Battery Detection Hotfix**: Replaced `SensorTreeModel` with a crash-free **Two-Stage Hybrid Detection** system (#14):
+  - **Stage 1 (Silent Probe)**: Silently probes common battery paths (`BAT0`, `BAT1`, `BATT`, etc.) for instant detection without running any subprocesses.
+  - **Stage 2 (Fallback)**: If no standard battery is found, falls back to a single `qdbus` query to list all sensors, completely avoiding `PlasmaCore.DataSource` file descriptor leaks. Includes a manual config fallback if `qdbus` is unavailable.
+
 ## [2.2.0] - 2026-03-05
 
 ### Added
