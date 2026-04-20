@@ -1,12 +1,11 @@
 site_name: KVitals
 site_description: A lightweight KDE Plasma 6 panel widget for live system vitals
-site_url: https://kvitals.pages.dev/
+site_url: https://kvitals.dev/
 repo_url: https://github.com/yassine20011/kvitals
 repo_name: yassine20011/kvitals
 
 theme:
   name: material
-  custom_dir: overrides
   palette:
     - scheme: slate
       primary: deep purple
